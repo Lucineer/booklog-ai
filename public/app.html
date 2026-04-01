@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>booklog.ai — Your Reading Companion</title>
+<style>
+  :root {
+    --burgundy: #7F1D1D;
+    --burgundy-light: #991B1B;
+    --burgundy-dark: #5c1414;
+    --cream: #FDF6E3;
+    --cream-dark: #F5EDDA;
+    --gold: #D4A843;
+    --gold-light: #E8C96A;
+    --gold-dark: #B8922E;
+    --text: #3B1F1F;
+    --text-muted: #8B6F6F;
+    --border: #E0D5C5;
+    --card-shadow: 0 2px 12px rgba(127,29,29,0.08);
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ─────────────────────────────────── */
+  header {
+    background: linear-gradient(135deg, var(--burgundy-dark), var(--burgundy));
+    color: var(--cream);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(127,29,29,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  header h1 {
+    font-size: 1.6rem;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+
+  header h1 span { color: var(--gold-light); }
+
+  nav { display: flex; gap: 0.25rem; }
+
+  nav button {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--cream);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+
+  nav button:hover, nav button.active {
+    background: var(--gold);
+    color: var(--burgundy-dark);
+    border-color: var(--gold);
+  }
+
+  /* ── Main Layout ────────────────────────────── */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── Cards ──────────────────────────────────── */
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 1.25rem;
+  }
+
+  .card h2 {
+    font-size: 1.25rem;
+    color: var(--burgundy);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--gold);
+    display: inline-block;
+  }
+
+  .card h3 {
+    font-size: 1.05rem;
+    color: var(--burgundy-light);
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── Forms ──────────────────────────────────── */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+    font-style: italic;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    background: var(--cream);
+    color: var(--text);
+    transition: border-color 0.2s;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212,168,67,0.15);
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  /* ── Buttons ────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--burgundy);
+    color: var(--cream);
+  }
+  .btn-primary:hover { background: var(--burgundy-light); }
+
+  .btn-gold {
+    background: var(--gold);
+    color: var(--burgundy-dark);
+  }
+  .btn-gold:hover { background: var(--gold-light); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--burgundy); }
+
+  .btn-danger {
+    background: transparent;
+    border: 1px solid #d4726a;
+    color: #d4726a;
+  }
+  .btn-danger:hover { background: #d4726a; color: white; }
+
+  .btn-sm { padding: 0.35rem 0.8rem; font-size: 0.8rem; }
+
+  /* ── Book Grid / Shelf ──────────────────────── */
+  .book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .book-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .book-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--gold);
+  }
+
+  .book-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(127,29,29,0.12);
+  }
+
+  .book-card .title {
+    font-size: 1.1rem;
+    color: var(--burgundy);
+    margin-bottom: 0.2rem;
+  }
+
+  .book-card .author {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 0.75rem;
+  }
+
+  .book-card .stars { color: var(--gold); margin-bottom: 0.5rem; }
+
+  .book-card .review {
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
+
+  .book-card .meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .book-card .genres {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+
+  .genre-tag {
+    background: var(--cream-dark);
+    border: 1px solid var(--border);
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  .book-card .actions {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* ── Stats Dashboard ────────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+  }
+
+  .stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--burgundy);
+    line-height: 1;
+  }
+
+  .stat-card .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+    font-style: italic;
+  }
+
+  .stat-card .stat-icon {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── Progress Bar ───────────────────────────── */
+  .progress-bar {
+    background: var(--cream-dark);
+    border-radius: 8px;
+    height: 12px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--burgundy), var(--gold));
+    border-radius: 8px;
+    transition: width 0.5s ease;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+  }
+
+  /* ── Chat ───────────────────────────────────── */
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 200px);
+    min-height: 400px;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--cream-dark);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 1rem;
+  }
+
+  .chat-msg {
+    margin-bottom: 1rem;
+    max-width: 80%;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius);
+    line-height: 1.55;
+    font-size: 0.92rem;
+  }
+
+  .chat-msg.user {
+    background: var(--burgundy);
+    color: var(--cream);
+    margin-left: auto;
+    border-bottom-right-radius: 2px;
+  }
+
+  .chat-msg.assistant {
+    background: white;
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 2px;
+  }
+
+  .chat-msg.assistant .msg-label {
+    font-size: 0.72rem;
+    color: var(--gold-dark);
+    font-style: italic;
+    margin-bottom: 0.3rem;
+  }
+
+  .chat-input-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .chat-input-row input {
+    flex: 1;
+  }
+
+  /* ── Recommendations ────────────────────────── */
+  .rec-card {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 0.75rem;
+    box-shadow: var(--card-shadow);
+  }
+
+  .rec-confidence {
+    min-width: 50px;
+    text-align: center;
+    padding: 0.4rem;
+    background: var(--cream-dark);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--burgundy);
+    font-weight: 600;
+  }
+
+  .rec-info .rec-title {
+    font-size: 1rem;
+    color: var(--burgundy);
+  }
+
+  .rec-info .rec-author {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .rec-info .rec-reason {
+    font-size: 0.85rem;
+    color: var(--text);
+    margin-top: 0.3rem;
+  }
+
+  /* ── Quotes ─────────────────────────────────── */
+  .quote-card {
+    padding: 1rem 1.25rem;
+    background: white;
+    border-left: 3px solid var(--gold);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin-bottom: 0.75rem;
+    box-shadow: var(--card-shadow);
+  }
+
+  .quote-card .quote-text {
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .quote-card .quote-source {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+  }
+
+  /* ── Modal ──────────────────────────────────── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(59,31,31,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: var(--radius);
+    padding: 2rem;
+    width: 90%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 12px 48px rgba(127,29,29,0.2);
+  }
+
+  .modal h2 { margin-bottom: 1.25rem; }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  /* ── Responsive ─────────────────────────────── */
+  @media (max-width: 768px) {
+    header { flex-direction: column; gap: 1rem; }
+    nav { flex-wrap: wrap; justify-content: center; }
+    main { padding: 1rem; }
+    .form-row { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .book-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Utility ────────────────────────────────── */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+  }
+
+  .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .empty-state p { font-style: italic; }
+
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header>
+  <h1>booklog<span>.ai</span></h1>
+  <nav>
+    <button class="active" onclick="showPanel('shelf')">Shelf</button>
+    <button onclick="showPanel('log')">Reading Log</button>
+    <button onclick="showPanel('goals')">Goals</button>
+    <button onclick="showPanel('stats')">Stats</button>
+    <button onclick="showPanel('recs')">For You</button>
+    <button onclick="showPanel('chat')">Chat</button>
+    <button onclick="showPanel('quotes')">Quotes</button>
+  </nav>
+</header>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main>
+
+  <!-- ── Shelf Panel ────────────────────────── -->
+  <section id="panel-shelf" class="panel active">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <h2 style="font-size:1.4rem;color:var(--burgundy);border-bottom:2px solid var(--gold);padding-bottom:0.3rem;display:inline-block">Your Library</h2>
+      <div style="display:flex;gap:0.5rem">
+        <button class="btn btn-outline btn-sm" onclick="filterBooks('all')">All</button>
+        <button class="btn btn-outline btn-sm" onclick="filterBooks('current')">Reading</button>
+        <button class="btn btn-outline btn-sm" onclick="filterBooks('completed')">Completed</button>
+        <button class="btn btn-primary btn-sm" onclick="openBookModal()">+ Add Book</button>
+      </div>
+    </div>
+    <div id="book-grid" class="book-grid">
+      <div class="empty-state">
+        <div class="empty-icon">&#128218;</div>
+        <p>Your shelf awaits its first addition.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Log Panel ──────────────────────────── -->
+  <section id="panel-log" class="panel">
+    <h2 style="font-size:1.4rem;color:var(--burgundy);border-bottom:2px solid var(--gold);padding-bottom:0.3rem;display:inline-block;margin-bottom:1.5rem">Reading Log</h2>
+    <div id="reading-log"></div>
+  </section>
+
+  <!-- ── Goals Panel ────────────────────────── -->
+  <section id="panel-goals" class="panel">
+    <h2 style="font-size:1.4rem;color:var(--burgundy);border-bottom:2px solid var(--gold);padding-bottom:0.3rem;display:inline-block;margin-bottom:1.5rem">Reading Goals</h2>
+    <div class="card">
+      <h3>Set Your Goal</h3>
+      <div class="form-row" style="margin-top:1rem">
+        <div class="form-group">
+          <label>Year</label>
+          <input type="number" id="goal-year" min="2020" max="2030">
+        </div>
+        <div class="form-group">
+          <label>Target Books</label>
+          <input type="number" id="goal-books" min="1" max="500" value="24">
+        </div>
+        <div class="form-group">
+          <label>Target Pages</label>
+          <input type="number" id="goal-pages" min="100" max="100000" value="6000">
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn btn-gold" onclick="saveGoal()">Set Goal</button>
+        </div>
+      </div>
+    </div>
+    <div id="goals-progress"></div>
+  </section>
+
+  <!-- ── Stats Panel ────────────────────────── -->
+  <section id="panel-stats" class="panel">
+    <h2 style="font-size:1.4rem;color:var(--burgundy);border-bottom:2px solid var(--gold);padding-bottom:0.3rem;display:inline-block;margin-bottom:1.5rem">Reading Stats</h2>
+    <div id="stats-grid" class="stats-grid"></div>
+    <div class="card" id="genre-breakdown"></div>
+  </section>
+
+  <!-- ── Recommendations Panel ──────────────── -->
+  <section id="panel-recs" class="panel">
+    <h2 style="font-size:1.4rem;color:var(--burgundy);border-bottom:2px solid var(--gold);padding-bottom:0.3rem;display:inline-block;margin-bottom:1.5rem">Recommended For You</h2>
+    <div id="rec-list"></div>
+  </section>
+
+  <!-- ── Chat Panel ─────────────────────────── -->
+  <section id="panel-chat" class="panel">
+    <h2 style="font-size:1.4rem;color:var(--burgundy);border-bottom:2px solid var(--gold);padding-bottom:0.3rem;display:inline-block;margin-bottom:1rem">Chat with Your Literary Companion</h2>
+    <div class="chat-container">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-msg assistant">
+          <div class="msg-label">booklog.ai</div>
+          Welcome, reader. I'm your literary companion. Tell me what you're in the mood for, or ask me to recommend something based on your history.
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Ask about books, request recommendations, discuss literature..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="btn btn-primary" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Quotes Panel ───────────────────────── -->
+  <section id="panel-quotes" class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <h2 style="font-size:1.4rem;color:var(--burgundy);border-bottom:2px solid var(--gold);padding-bottom:0.3rem;display:inline-block">Quote Collection</h2>
+      <button class="btn btn-primary btn-sm" onclick="openQuoteModal()">+ Add Quote</button>
+    </div>
+    <div id="quotes-list"></div>
+  </section>
+
+</main>
+
+<!-- ═══════════ BOOK MODAL ═══════════ -->
+<div class="modal-overlay" id="book-modal">
+  <div class="modal">
+    <h2 id="book-modal-title">Add a Book</h2>
+    <input type="hidden" id="edit-book-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="book-title" placeholder="e.g. The Great Gatsby">
+      </div>
+      <div class="form-group">
+        <label>Author</label>
+        <input type="text" id="book-author" placeholder="e.g. F. Scott Fitzgerald">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Pages</label>
+        <input type="number" id="book-pages" min="1" placeholder="180">
+      </div>
+      <div class="form-group">
+        <label>Rating (1-5)</label>
+        <input type="number" id="book-rating" min="0" max="5" step="1" value="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Start Date</label>
+        <input type="date" id="book-start">
+      </div>
+      <div class="form-group">
+        <label>End Date (leave blank if reading)</label>
+        <input type="date" id="book-end">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Genres (comma separated)</label>
+      <input type="text" id="book-genres" placeholder="Fiction, Classic, Literary">
+    </div>
+    <div class="form-group">
+      <label>Review</label>
+      <textarea id="book-review" placeholder="Your thoughts on this book..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeBookModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="saveBook()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ QUOTE MODAL ═══════════ -->
+<div class="modal-overlay" id="quote-modal">
+  <div class="modal">
+    <h2>Add a Quote</h2>
+    <div class="form-group">
+      <label>Book</label>
+      <select id="quote-book"></select>
+    </div>
+    <div class="form-group">
+      <label>Quote</label>
+      <textarea id="quote-text" placeholder="Enter the memorable passage..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Page (optional)</label>
+        <input type="number" id="quote-page" min="1">
+      </div>
+      <div class="form-group">
+        <label>Tags (comma separated)</label>
+        <input type="text" id="quote-tags" placeholder="inspiring, philosophical">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeQuoteModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="saveQuote()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCRIPT ═══════════ -->
+<script>
+const API = '';
+
+// ── Navigation ──────────────────────────────────────────────
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  if (name === 'shelf') loadBooks();
+  if (name === 'stats') loadStats();
+  if (name === 'goals') loadGoals();
+  if (name === 'recs') loadRecommendations();
+  if (name === 'quotes') loadQuotes();
+  if (name === 'log') loadReadingLog();
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function stars(n) {
+  if (n === 0) return '<span style="color:var(--text-muted)">Not rated</span>';
+  return '&#9733;'.repeat(n) + '&#9734;'.repeat(5 - n);
+}
+
+function formatDate(d) {
+  if (!d) return 'Present';
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  return res.json();
+}
+
+// ── Books ────────────────────────────────────────────────────
+let currentFilter = 'all';
+
+async function loadBooks(filter) {
+  if (filter) currentFilter = filter;
+  let url = '/api/books';
+  if (currentFilter === 'current') url += '?reading=current';
+  else if (currentFilter === 'completed') url += '?reading=completed';
+
+  const books = await api(url);
+  const grid = document.getElementById('book-grid');
+
+  if (!books.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128218;</div><p>Your shelf awaits its first addition.</p></div>';
+    return;
+  }
+
+  grid.innerHTML = books.map(b => `
+    <div class="book-card">
+      <div class="title">${esc(b.title)}</div>
+      <div class="author">by ${esc(b.author)}</div>
+      <div class="stars">${stars(b.rating)}</div>
+      ${b.review ? `<div class="review">${esc(b.review)}</div>` : ''}
+      <div class="meta">
+        <span>${b.pages} pages</span>
+        <span>${formatDate(b.startDate)} — ${formatDate(b.endDate)}</span>
+        ${b.endDate ? '' : '<span style="color:var(--gold-dark);font-weight:600">Reading</span>'}
+      </div>
+      ${b.genres.length ? `<div class="genres">${b.genres.map(g => `<span class="genre-tag">${esc(g)}</span>`).join('')}</div>` : ''}
+      <div class="actions">
+        <button class="btn btn-outline btn-sm" onclick="editBook('${b.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteBook('${b.id}')">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterBooks(f) {
+  document.querySelectorAll('#panel-shelf .btn-outline').forEach(b => b.style.borderColor = '');
+  event.target.style.borderColor = 'var(--gold)';
+  loadBooks(f);
+}
+
+function openBookModal(book) {
+  document.getElementById('edit-book-id').value = book?.id ?? '';
+  document.getElementById('book-modal-title').textContent = book ? 'Edit Book' : 'Add a Book';
+  document.getElementById('book-title').value = book?.title ?? '';
+  document.getElementById('book-author').value = book?.author ?? '';
+  document.getElementById('book-pages').value = book?.pages ?? '';
+  document.getElementById('book-rating').value = book?.rating ?? 0;
+  document.getElementById('book-start').value = book?.startDate ?? new Date().toISOString().slice(0,10);
+  document.getElementById('book-end').value = book?.endDate ?? '';
+  document.getElementById('book-genres').value = (book?.genres ?? []).join(', ');
+  document.getElementById('book-review').value = book?.review ?? '';
+  document.getElementById('book-modal').classList.add('open');
+}
+
+function closeBookModal() {
+  document.getElementById('book-modal').classList.remove('open');
+}
+
+async function editBook(id) {
+  const book = await api('/api/books/' + id);
+  openBookModal(book);
+}
+
+async function saveBook() {
+  const id = document.getElementById('edit-book-id').value;
+  const payload = {
+    title: document.getElementById('book-title').value,
+    author: document.getElementById('book-author').value,
+    pages: parseInt(document.getElementById('book-pages').value) || 0,
+    rating: parseInt(document.getElementById('book-rating').value) || 0,
+    startDate: document.getElementById('book-start').value,
+    endDate: document.getElementById('book-end').value || null,
+    genres: document.getElementById('book-genres').value.split(',').map(s => s.trim()).filter(Boolean),
+    review: document.getElementById('book-review').value,
+  };
+
+  if (!payload.title || !payload.author) { alert('Title and author are required.'); return; }
+
+  if (id) {
+    await api('/api/books/' + id, { method: 'PUT', body: JSON.stringify(payload) });
+  } else {
+    await api('/api/books', { method: 'POST', body: JSON.stringify(payload) });
+  }
+
+  closeBookModal();
+  loadBooks();
+}
+
+async function deleteBook(id) {
+  if (!confirm('Remove this book from your shelf?')) return;
+  await api('/api/books/' + id, { method: 'DELETE' });
+  loadBooks();
+}
+
+// ── Reading Log ──────────────────────────────────────────────
+async function loadReadingLog() {
+  const books = await api('/api/books');
+  const el = document.getElementById('reading-log');
+  if (!books.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128221;</div><p>No entries yet. Add a book to start tracking.</p></div>';
+    return;
+  }
+
+  // Group by month
+  const months = {};
+  for (const b of books) {
+    const key = (b.endDate || b.startDate).slice(0, 7);
+    if (!months[key]) months[key] = [];
+    months[key].push(b);
+  }
+
+  el.innerHTML = Object.entries(months)
+    .sort(([a],[b]) => b.localeCompare(a))
+    .map(([month, items]) => `
+      <div class="card">
+        <h3 style="margin-bottom:0.75rem">${new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
+        ${items.map(b => `
+          <div style="padding:0.5rem 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <strong style="color:var(--burgundy)">${esc(b.title)}</strong>
+              <span style="color:var(--text-muted);font-style:italic"> by ${esc(b.author)}</span>
+              ${b.endDate ? '' : '<span style="color:var(--gold-dark);font-size:0.8rem;margin-left:0.5rem">[Reading]</span>'}
+            </div>
+            <div style="display:flex;align-items:center;gap:1rem">
+              <span style="color:var(--gold)">${b.rating > 0 ? '&#9733;'.repeat(b.rating) : ''}</span>
+              <span style="font-size:0.8rem;color:var(--text-muted)">${formatDate(b.startDate)}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+}
+
+// ── Goals ────────────────────────────────────────────────────
+async function loadGoals() {
+  const year = new Date().getFullYear();
+  document.getElementById('goal-year').value = year;
+  const data = await api('/api/reading/goals?year=' + year);
+  const el = document.getElementById('goals-progress');
+
+  if (!data.goals || !data.goals.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127919;</div><p>Set your first reading goal above.</p></div>';
+    return;
+  }
+
+  const p = data.progress;
+  const booksPct = p.targetBooks ? Math.min(100, Math.round(p.books.current / p.targetBooks * 100)) : 0;
+  const pagesPct = p.targetPages ? Math.min(100, Math.round(p.pages.current / p.targetPages * 100)) : 0;
+
+  el.innerHTML = `
+    <div class="card" style="margin-top:1rem">
+      <h3>${year} Progress</h3>
+      <div style="margin-top:1rem">
+        <label style="font-size:0.85rem;color:var(--text-muted)">Books — ${p.books.current} of ${p.books.target}</label>
+        <div class="progress-bar"><div class="progress-fill" style="width:${booksPct}%"></div></div>
+        <div class="progress-label"><span>${booksPct}% complete</span><span>${p.books.target - p.books.current} remaining</span></div>
+      </div>
+      <div style="margin-top:1.25rem">
+        <label style="font-size:0.85rem;color:var(--text-muted)">Pages — ${p.pages.current.toLocaleString()} of ${p.pages.target.toLocaleString()}</label>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pagesPct}%"></div></div>
+        <div class="progress-label"><span>${pagesPct}% complete</span><span>${(p.pages.target - p.pages.current).toLocaleString()} remaining</span></div>
+      </div>
+    </div>
+  `;
+}
+
+async function saveGoal() {
+  const year = parseInt(document.getElementById('goal-year').value);
+  const books = parseInt(document.getElementById('goal-books').value);
+  const pages = parseInt(document.getElementById('goal-pages').value);
+  if (!year) { alert('Enter a year.'); return; }
+  await api('/api/reading/goals', { method: 'POST', body: JSON.stringify({ year, targetBooks: books, targetPages: pages }) });
+  loadGoals();
+}
+
+// ── Stats ────────────────────────────────────────────────────
+async function loadStats() {
+  const stats = await api('/api/reading/stats');
+  const grid = document.getElementById('stats-grid');
+
+  grid.innerHTML = `
+    <div class="stat-card"><div class="stat-icon">&#128214;</div><div class="stat-value">${stats.totalBooksCompleted}</div><div class="stat-label">Books Completed</div></div>
+    <div class="stat-card"><div class="stat-icon">&#128196;</div><div class="stat-value">${stats.totalPagesRead.toLocaleString()}</div><div class="stat-label">Pages Read</div></div>
+    <div class="stat-card"><div class="stat-icon">&#128209;</div><div class="stat-value">${stats.avgPagesPerDay}</div><div class="stat-label">Pages / Day</div></div>
+    <div class="stat-card"><div class="stat-icon">&#128197;</div><div class="stat-value">${stats.avgBooksPerYear}</div><div class="stat-label">Books / Year</div></div>
+    <div class="stat-card"><div class="stat-icon">&#11088;</div><div class="stat-value">${stats.avgRating}</div><div class="stat-label">Avg Rating</div></div>
+    <div class="stat-card"><div class="stat-icon">&#128293;</div><div class="stat-value">${stats.longestStreak}</div><div class="stat-label">Longest Streak</div></div>
+  `;
+
+  // Genre breakdown
+  const genres = stats.booksByGenre || {};
+  const genreEl = document.getElementById('genre-breakdown');
+  const entries = Object.entries(genres).sort(([,a],[,b]) => b - a);
+  const maxCount = entries.length ? entries[0][1] : 1;
+
+  genreEl.innerHTML = entries.length ? `
+    <h3>Genre Breakdown</h3>
+    <div style="margin-top:1rem">
+      ${entries.map(([genre, count]) => `
+        <div style="margin-bottom:0.75rem">
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.25rem">
+            <span>${esc(genre)}</span><span style="color:var(--text-muted)">${count} book${count>1?'s':''}</span>
+          </div>
+          <div class="progress-bar" style="height:8px">
+            <div class="progress-fill" style="width:${Math.round(count/maxCount*100)}%"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  ` : '<p style="color:var(--text-muted);font-style:italic">Read some books to see your genre breakdown.</p>';
+}
+
+// ── Recommendations ──────────────────────────────────────────
+async function loadRecommendations() {
+  const recs = await api('/api/recommendations');
+  const el = document.getElementById('rec-list');
+
+  if (!recs.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128161;</div><p>Add some books to your shelf for personalized recommendations.</p></div>';
+    return;
+  }
+
+  el.innerHTML = recs.map(r => `
+    <div class="rec-card">
+      <div class="rec-confidence">${Math.round(r.confidence * 100)}%</div>
+      <div class="rec-info">
+        <div class="rec-title">${esc(r.title)}</div>
+        <div class="rec-author">by ${esc(r.author)}</div>
+        <div class="rec-reason">${esc(r.reason)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Chat ─────────────────────────────────────────────────────
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  const messages = document.getElementById('chat-messages');
+  messages.innerHTML += `<div class="chat-msg user">${esc(msg)}</div>`;
+
+  // Add loading indicator
+  const loadingId = 'loading-' + Date.now();
+  messages.innerHTML += `<div class="chat-msg assistant" id="${loadingId}"><div class="msg-label">booklog.ai</div><em>Thinking...</em></div>`;
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const res = await fetch(API + '/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg }),
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullText = '';
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) loadingEl.innerHTML = '<div class="msg-label">booklog.ai</div><span class="chat-text"></span>';
+    const textEl = loadingEl?.querySelector('.chat-text');
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ') || line === 'data: [DONE]') continue;
+        try {
+          const parsed = JSON.parse(line.slice(6));
+          if (parsed.content) {
+            fullText += parsed.content;
+            if (textEl) textEl.textContent = fullText;
+            messages.scrollTop = messages.scrollHeight;
+          }
+        } catch {}
+      }
+    }
+  } catch (err) {
+    const el = document.getElementById(loadingId);
+    if (el) el.innerHTML = '<div class="msg-label">booklog.ai</div>Connection error. Please try again.';
+  }
+}
+
+// ── Quotes ───────────────────────────────────────────────────
+async function loadQuotes() {
+  const [quotes, books] = await Promise.all([api('/api/quotes'), api('/api/books')]);
+  const el = document.getElementById('quotes-list');
+
+  // Populate book select
+  const select = document.getElementById('quote-book');
+  select.innerHTML = '<option value="">Select a book...</option>' +
+    books.map(b => `<option value="${b.id}">${esc(b.title)} — ${esc(b.author)}</option>`).join('');
+
+  if (!quotes.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">&#9997;</div><p>Save memorable passages from your reading.</p></div>';
+    return;
+  }
+
+  const bookMap = {};
+  for (const b of books) bookMap[b.id] = b;
+
+  el.innerHTML = quotes.map(q => {
+    const book = bookMap[q.bookId];
+    return `
+      <div class="quote-card">
+        <div class="quote-text">"${esc(q.text)}"</div>
+        <div class="quote-source">
+          ${book ? `— ${esc(book.title)} by ${esc(book.author)}` : ''}
+          ${q.page ? `, p. ${q.page}` : ''}
+          ${q.tags.length ? ' | ' + q.tags.map(t => '#' + esc(t)).join(' ') : ''}
+        </div>
+        <div style="margin-top:0.5rem">
+          <button class="btn btn-danger btn-sm" onclick="deleteQuote('${q.id}')">Remove</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openQuoteModal() {
+  document.getElementById('quote-text').value = '';
+  document.getElementById('quote-page').value = '';
+  document.getElementById('quote-tags').value = '';
+  document.getElementById('quote-modal').classList.add('open');
+}
+
+function closeQuoteModal() {
+  document.getElementById('quote-modal').classList.remove('open');
+}
+
+async function saveQuote() {
+  const bookId = document.getElementById('quote-book').value;
+  const text = document.getElementById('quote-text').value.trim();
+  if (!bookId || !text) { alert('Select a book and enter the quote.'); return; }
+
+  await api('/api/quotes', {
+    method: 'POST',
+    body: JSON.stringify({
+      bookId,
+      text,
+      page: parseInt(document.getElementById('quote-page').value) || null,
+      tags: document.getElementById('quote-tags').value.split(',').map(s => s.trim()).filter(Boolean),
+    }),
+  });
+
+  closeQuoteModal();
+  loadQuotes();
+}
+
+async function deleteQuote(id) {
+  if (!confirm('Remove this quote?')) return;
+  await api('/api/quotes/' + id, { method: 'DELETE' });
+  loadQuotes();
+}
+
+// ── Utility ──────────────────────────────────────────────────
+function esc(s) {
+  const el = document.createElement('span');
+  el.textContent = s;
+  return el.innerHTML;
+}
+
+// ── Init ─────────────────────────────────────────────────────
+document.getElementById('book-start').value = new Date().toISOString().slice(0, 10);
+loadBooks();
+</script>
+</body>
+</html>
