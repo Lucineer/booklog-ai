@@ -46,3 +46,7 @@ npm run dev
 ```bash
 npm run deploy
 ```
+
+## License
+
+MIT — Built with ❤️ by [Superinstance](https://github.com/superinstance) & [Lucineer](https://github.com/Lucineer) (DiGennaro et al.)
