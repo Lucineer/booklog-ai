@@ -1,0 +1,12 @@
+name = "booklog-ai"
+main = "src/worker.ts"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "MEMORY"
+id = "ce39a8a69ebc44abb0d518ce1a26fae7"
+
+[vars]
+AGENT_NAME = "BookLog"
+AGENT_TONE = "literary, insightful, thoughtful"
+AGENT_AVATAR = "📚"
