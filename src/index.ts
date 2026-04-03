@@ -182,12 +182,9 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     });
   }
 
-  // Serve app.html at root
+  // Serve inline landing page at root
   if (path === "/" || path === "/index.html") {
-    const html = await fetch(new URL("../public/app.html", import.meta.url).href);
-    return new Response(html.body, {
-      headers: { "Content-Type": "text/html" },
-    });
+    return new Response(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>booklog.ai</title><style>body{font-family:monospace;background:#0a0a1a;color:#c4c4e0;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}</style></head><body><div style="text-align:center"><h1 style="font-size:48px;font-weight:200;letter-spacing:8px;color:#7c6aef">booklog</h1><p style="color:#6a6a8e;letter-spacing:3px">BOOKS · READING · INSIGHTS</p><p style="margin-top:48px"><a href="/app.html" style="padding:14px 40px;background:#7c6aef;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">Open booklog</a></p></div></body></html>`, { headers: { "Content-Type": "text/html" } });
   }
 
   // ── POST /api/chat ────────────────────────────────────────
