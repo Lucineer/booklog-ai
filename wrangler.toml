@@ -1,4 +1,4 @@
-account_id = "2bd99d5b13b2186382cd3dc995b0bb18"
+account_id = "049ff5e84ecf636b53b162cbb580aae6"
 name = "booklog-ai"
 main = "src/index.ts"
 compatibility_date = "2024-12-01"
@@ -8,4 +8,4 @@ DEEPSEEK_API_URL = "https://api.deepseek.com/chat/completions"
 
 [[kv_namespaces]]
 binding = "BOOKLOG_KV"
-id = "2eca5cd458434e5a88686a13482eab7d"
+id = "ce618dc102f9427cb4e896ff3aad851e"
