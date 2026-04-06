@@ -176,6 +176,7 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
   }
+    if (path === '/vessel.json') { try { const vj = await import('./vessel.json', { with: { type: 'json' } }); return json(vj.default || vj); } catch { return json({}); } }
 
 
 
