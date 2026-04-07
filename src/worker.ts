@@ -151,12 +151,12 @@ export default {
 
     // Setup wizard
     if (path === '/setup') {
-      return new Response(generateSetupHTML(AGENT_NAME, ACCENT), { headers: { 'Content-Type': 'text/html' } });
+      return new Response(generateSetupHTML(AGENT_NAME, ACCENT), { headers: { 'Content-Type': 'text/html', 'Content-Security-Policy': 'default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*; frame-ancestors 'none';' } });
     }
 
     // Landing page
     if (path === '/' || path === '') {
-      return new Response(generateLandingHTML(), { headers: { 'Content-Type': 'text/html' } });
+      return new Response(generateLandingHTML(), { headers: { 'Content-Type': 'text/html', 'Content-Security-Policy': 'default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*; frame-ancestors 'none';' } });
     }
 
     // API routes
