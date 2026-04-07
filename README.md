@@ -4,69 +4,117 @@
 
 <h1 align="center">booklog-ai</h1>
 
-<p align="center">A personal reading log with local AI context.</p>
+<p align="center">Your quiet AI reading companion. No ads. No metrics. No one else's algorithm.</p>
 
 <p align="center">
   <a href="#quick-start">Quick Start</a> ·
   <a href="#features">Features</a> ·
-  <a href="#limitations">Limitations</a> ·
+  <a href="#the-fleet">The Fleet</a> ·
+  <a href="https://booklog-ai.casey-digennaro.workers.dev">Live Demo</a> ·
   <a href="https://github.com/Lucineer/booklog-ai/issues">Issues</a>
 </p>
 
 ---
 
-You close a book, there's a line that sticks with you. You might write it down, or you might not. Weeks later, you wish you could find it again.
+You finish a book at 2am. You scribble one line in a note. Three months later you cannot remember what it meant. You set a reading goal, and it immediately becomes another chore you fail at.
 
-booklog-ai runs in your own fork and tracks your reading progress and notes. It uses local AI models to help you search and connect ideas from your reading history. It doesn't collect your data or show ads.
+booklog-ai is a personal reading companion. It remembers the quotes you liked, the arguments you had with the author, the parts you skipped. It will never show you your reading streak. It will never post for you. It will never sell anything about what you read.
 
-**Attribution: Superinstance & Lucineer (DiGennaro et al.)**
+It is an autonomous agent running on Cloudflare Workers. You fork it. You own it. It is part of the Cocapn Fleet.
 
-This is a cocapn vessel—a self-contained repository that runs on Cloudflare Workers and uses git for coordination.
+### What makes this different
+Many book tools treat you as a data point. This one runs on your infrastructure.
+- No account required on anyone else's server
+- No telemetry. Nothing leaves your worker unless you say so.
+- Recommendations come from your reading history, not a bestseller list.
+- The repository is the agent. Every line of logic is in the code you run.
 
 ---
 
 ## Quick Start
 
-Fork this repository to your own account.
-
+Fork this repository, then run:
 ```bash
-gh repo fork Lucineer/booklog-ai --clone
-cd booklog-ai
+gh repo fork Lucineer/booklog-ai --clone && cd booklog-ai
 npx wrangler login
-echo "your-github-token" | npx wrangler secret put GITHUB_TOKEN
-echo "your-llm-key" | npx wrangler secret put DEEPSEEK_API_KEY
+npx wrangler secret put GITHUB_TOKEN
+npx wrangler secret put DEEPSEEK_API_KEY
 npx wrangler deploy
 ```
-
-Your instance will be live at your Worker URL.
+Your agent is now live at your worker URL.
 
 ## Features
 
-### Reading Tools
-- Track reading progress
-- Collect and tag quotes
-- Set personal reading goals
-- Search your notes and highlights
-- Export your log as markdown
+- Track books, progress, marginalia and highlighted quotes
+- Personalised recommendations built from your reading history
+- Reading goals that adapt
+- Full conversation memory across reading sessions
+- All keys stay in Cloudflare Secrets
+- Works with major LLMs
+- Automatic PII detection and stripping
+- Built in rate limiting and health checks
+- Speaks CRP-39 Fleet protocol to coordinate with other agents
+- Cold start under 10ms
 
-### Platform
-- **BYOK v2** – All secrets stored via Cloudflare Secrets
-- Supports multiple LLM backends (DeepSeek, SiliconFlow, etc.)
-- Persistent session context
-- Built-in rate limiting
-- Health monitoring
-
-## Limitations
-
-This is a single-file Worker with minimal dependencies. Its AI capabilities are limited by the model you configure and your API key's quotas. It does not have a graphical interface; you interact with it via API calls or a simple frontend you build yourself.
+**Limitation:** Currently, booklog-ai only processes text in English.
 
 ## Architecture
 
-Single-file Cloudflare Worker with zero runtime dependencies. Built with [Capitaine](https://github.com/Lucineer/capitaine) and follows the [Cocapn Fleet Protocol](https://github.com/Lucineer/cocapn). It uses the CRP-39 protocol for fleet coordination.
+```
+src/
+  worker.ts      # Entrypoint, serves UI and handles requests
+lib/
+  byok.ts        # Multi-model routing
+  memory.ts      # Session and long term reading context
+  books.ts       # Metadata and library logic
+```
+
+## The Fleet
+
+booklog-ai is one of 40+ purpose-built autonomous vessels in the Cocapn Fleet. Each vessel handles one domain, shares trust only with your other vessels, and never phones home.
+
+<details>
+<summary><strong>⚓ Full Fleet Listing</strong></summary>
+
+**Flagship vessels**
+- [cocapn.ai](https://github.com/Lucineer/capitaine)
+- [personallog.ai](https://github.com/Lucineer/personallog)
+
+**Learning & Development**
+- [booklog-ai](https://github.com/Lucineer/booklog-ai)
+- [research-ai](https://github.com/Lucineer/research-ai)
+- [paperlog-ai](https://github.com/Lucineer/paperlog-ai)
+
+**Knowledge & Memory**
+- [index-ai](https://github.com/Lucineer/index-ai)
+- [memory-ai](https://github.com/Lucineer/memory-ai)
+
+**Media & Content**
+- [videolog-ai](https://github.com/Lucineer/videolog-ai)
+- [newsletter-ai](https://github.com/Lucineer/newsletter-ai)
+
+**Development & Infrastructure**
+- [sre-ai](https://github.com/Lucineer/sre-ai)
+- [review-ai](https://github.com/Lucineer/review-ai)
+
+**Communication**
+- [mail-ai](https://github.com/Lucineer/mail-ai)
+- [meeting-ai](https://github.com/Lucineer/meeting-ai)
+
+**Health & Wellness**
+- [foodlog-ai](https://github.com/Lucineer/foodlog-ai)
+- [sleep-ai](https://github.com/Lucineer/sleep-ai)
+
+**Finance & Organization**
+- [expense-ai](https://github.com/Lucineer/expense-ai)
+- [task-ai](https://github.com/Lucineer/task-ai)
+
+[View all vessels...](https://the-fleet.casey-digennaro.workers.dev)
+</details>
 
 ---
 
 <div align="center">
-  <a href="https://the-fleet.casey-digennaro.workers.dev">The Fleet</a> ·
-  <a href="https://cocapn.ai">Cocapn</a>
+  <sub>Part of the <a href="https://the-fleet.casey-digennaro.workers.dev">Cocapn Fleet</a> • <a href="https://cocapn.ai">Cocapn</a></sub><br>
+  <sub>Attribution: Superinstance & Lucineer (DiGennaro et al.)</sub>
 </div>
